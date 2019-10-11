@@ -1,0 +1,4004 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>geoAuto</title>
+	<link rel="stylesheet" type="text/css" href="bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="geocomplete/map.css">
+	<style type="text/css">
+	.map_canvas {
+    	display: inline-block;
+    	width: 100%;
+    	float: left;
+    }  
+    #pip-pano {
+    	display: inline-block;
+    	width: 100%;
+    	height: 400px;
+    } 
+	</style>
+
+	<script type="text/javascript" src="jquery.js"></script>
+</head>
+<body>
+
+
+<!-- <script>
+	google.maps.addDomListener(window, 'load', initialize);
+
+	function initialize() {
+		var autocomplete = new google.maps.places.Autocomplete(document.getElementById('txtautocomplete'));
+		google.maps.event.addListener(autocomplete, 'place_changed', function() {
+			var place = autocomplete.getPlace();
+			var location = "<b>Location</b>: " + place.formatted_address + "<br/>";
+			location += "<b>Latitude</b>: " + place.geometry.location.A + "<br/>";
+			location += "<b>Longitude</b>: " + place.geometry.location.F;
+			document.getElementById('lblResult').innerHTML = location
+			// console.log(location);
+		})	
+
+	}
+</script> -->
+
+<div class="container">
+	<h4>Search Location</h4>
+	<div class="row">
+	  	<form>
+	  		<div class="col-lg-12">
+				<div class="form-group input-group">
+					<input type="text" id="search_term" class="form-control" placeholder="Type in an address" value="">
+					
+					<div class="input-group-btn">
+						<!-- <button class="btn btn-default get_map" type="submit">
+							Locate
+						</button> -->
+						<input class="btn btn-default get_map" id="find" type="button" value="find" />
+					</div>
+				</div>
+				<label id="lblResult"></label>
+			</div>
+		</form>
+	</div>
+
+	<div class="row">
+    	<div class="col-lg-6">
+    		<div class="map_canvas" id="geomap"></div>
+    	</div>
+    	<div class="col-lg-6">
+    		<div id="pip-pano"></div>
+    	</div>
+    </div>
+
+    <div class="row">
+		<h4>location detail</h4>
+		<div class="col-lg-12">
+		    <p>Address: <input type="text" name="formatted_address" class="search_addr" size="45"></p>
+			<p>Latitude: <input type="text" class="search_latitude" size="30"></p>
+			<p>Longitude: <input type="text" class="search_longitude" size="30"></p>
+			<p>Kota/Kab: <input type="text" class="search_city" size="40" name=""> <input type="text" class="id_kota"></p>
+			<p>Provinsi: <input type="text" class="search_prov" size="40" name=""> <input type="text" class="id_provinsi"></p>
+      	</div>
+      	<a id="reset" href="#" style="display:none;">Reset Marker</a>
+    </div>
+
+</div>    
+
+<script>
+
+var kabu = [
+    {
+        "id_kab": "1101",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1102",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH TENGGARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1103",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1104",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1105",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1106",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH BESAR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1107",
+        "id_prov": "11",
+        "nama": "KABUPATEN PIDIE",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1108",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1109",
+        "id_prov": "11",
+        "nama": "KABUPATEN SIMEULUE",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1110",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH SINGKIL",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1111",
+        "id_prov": "11",
+        "nama": "KABUPATEN BIREUEN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1112",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH BARAT DAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1113",
+        "id_prov": "11",
+        "nama": "KABUPATEN GAYO LUES",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1114",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH JAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1115",
+        "id_prov": "11",
+        "nama": "KABUPATEN NAGAN RAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1116",
+        "id_prov": "11",
+        "nama": "KABUPATEN ACEH TAMIANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1117",
+        "id_prov": "11",
+        "nama": "KABUPATEN BENER MERIAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1118",
+        "id_prov": "11",
+        "nama": "KABUPATEN PIDIE JAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1171",
+        "id_prov": "11",
+        "nama": "KOTA BANDA ACEH",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1172",
+        "id_prov": "11",
+        "nama": "KOTA SABANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1173",
+        "id_prov": "11",
+        "nama": "KOTA LHOKSEUMAWE",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1174",
+        "id_prov": "11",
+        "nama": "KOTA LANGSA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1175",
+        "id_prov": "11",
+        "nama": "KOTA SUBULUSSALAM",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1201",
+        "id_prov": "12",
+        "nama": "KABUPATEN TAPANULI TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1202",
+        "id_prov": "12",
+        "nama": "KABUPATEN TAPANULI UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1203",
+        "id_prov": "12",
+        "nama": "KABUPATEN TAPANULI SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1204",
+        "id_prov": "12",
+        "nama": "KABUPATEN NIAS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1205",
+        "id_prov": "12",
+        "nama": "KABUPATEN LANGKAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1206",
+        "id_prov": "12",
+        "nama": "KABUPATEN KARO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1207",
+        "id_prov": "12",
+        "nama": "KABUPATEN DELI SERDANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1208",
+        "id_prov": "12",
+        "nama": "KABUPATEN SIMALUNGUN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1209",
+        "id_prov": "12",
+        "nama": "KABUPATEN ASAHAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1210",
+        "id_prov": "12",
+        "nama": "KABUPATEN LABUHANBATU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1211",
+        "id_prov": "12",
+        "nama": "KABUPATEN DAIRI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1212",
+        "id_prov": "12",
+        "nama": "KABUPATEN TOBA SAMOSIR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1213",
+        "id_prov": "12",
+        "nama": "KABUPATEN MANDAILING NATAL",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1214",
+        "id_prov": "12",
+        "nama": "KABUPATEN NIAS SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1215",
+        "id_prov": "12",
+        "nama": "KABUPATEN PAKPAK BHARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1216",
+        "id_prov": "12",
+        "nama": "KABUPATEN HUMBANG HASUNDUTAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1217",
+        "id_prov": "12",
+        "nama": "KABUPATEN SAMOSIR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1218",
+        "id_prov": "12",
+        "nama": "KABUPATEN SERDANG BEDAGAI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1219",
+        "id_prov": "12",
+        "nama": "KABUPATEN BATU BARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1220",
+        "id_prov": "12",
+        "nama": "KABUPATEN PADANG LAWAS UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1221",
+        "id_prov": "12",
+        "nama": "KABUPATEN PADANG LAWAS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1222",
+        "id_prov": "12",
+        "nama": "KABUPATEN LABUHANBATU SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1223",
+        "id_prov": "12",
+        "nama": "KABUPATEN LABUHANBATU UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1224",
+        "id_prov": "12",
+        "nama": "KABUPATEN NIAS UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1225",
+        "id_prov": "12",
+        "nama": "KABUPATEN NIAS BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1271",
+        "id_prov": "12",
+        "nama": "KOTA MEDAN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1272",
+        "id_prov": "12",
+        "nama": "KOTA PEMATANG SIANTAR",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1273",
+        "id_prov": "12",
+        "nama": "KOTA SIBOLGA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1274",
+        "id_prov": "12",
+        "nama": "KOTA TANJUNG BALAI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1275",
+        "id_prov": "12",
+        "nama": "KOTA BINJAI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1276",
+        "id_prov": "12",
+        "nama": "KOTA TEBING TINGGI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1277",
+        "id_prov": "12",
+        "nama": "KOTA PADANGSIDIMPUAN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1278",
+        "id_prov": "12",
+        "nama": "KOTA GUNUNGSITOLI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1301",
+        "id_prov": "13",
+        "nama": "KABUPATEN PESISIR SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1302",
+        "id_prov": "13",
+        "nama": "KABUPATEN SOLOK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1303",
+        "id_prov": "13",
+        "nama": "KABUPATEN SIJUNJUNG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1304",
+        "id_prov": "13",
+        "nama": "KABUPATEN TANAH DATAR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1305",
+        "id_prov": "13",
+        "nama": "KABUPATEN PADANG PARIAMAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1306",
+        "id_prov": "13",
+        "nama": "KABUPATEN AGAM",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1307",
+        "id_prov": "13",
+        "nama": "KABUPATEN LIMA PULUH KOTA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1308",
+        "id_prov": "13",
+        "nama": "KABUPATEN PASAMAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1309",
+        "id_prov": "13",
+        "nama": "KABUPATEN KEPULAUAN MENTAWAI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1310",
+        "id_prov": "13",
+        "nama": "KABUPATEN DHARMASRAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1311",
+        "id_prov": "13",
+        "nama": "KABUPATEN SOLOK SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1312",
+        "id_prov": "13",
+        "nama": "KABUPATEN PASAMAN BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1371",
+        "id_prov": "13",
+        "nama": "KOTA PADANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1372",
+        "id_prov": "13",
+        "nama": "KOTA SOLOK",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1373",
+        "id_prov": "13",
+        "nama": "KOTA SAWAHLUNTO",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1374",
+        "id_prov": "13",
+        "nama": "KOTA PADANG PANJANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1375",
+        "id_prov": "13",
+        "nama": "KOTA BUKITTINGGI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1376",
+        "id_prov": "13",
+        "nama": "KOTA PAYAKUMBUH",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1377",
+        "id_prov": "13",
+        "nama": "KOTA PARIAMAN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1401",
+        "id_prov": "14",
+        "nama": "KABUPATEN KAMPAR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1402",
+        "id_prov": "14",
+        "nama": "KABUPATEN INDRAGIRI HULU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1403",
+        "id_prov": "14",
+        "nama": "KABUPATEN BENGKALIS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1404",
+        "id_prov": "14",
+        "nama": "KABUPATEN INDRAGIRI HILIR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1405",
+        "id_prov": "14",
+        "nama": "KABUPATEN PELALAWAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1406",
+        "id_prov": "14",
+        "nama": "KABUPATEN ROKAN HULU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1407",
+        "id_prov": "14",
+        "nama": "KABUPATEN ROKAN HILIR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1408",
+        "id_prov": "14",
+        "nama": "KABUPATEN SIAK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1409",
+        "id_prov": "14",
+        "nama": "KABUPATEN KUANTAN SINGINGI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1410",
+        "id_prov": "14",
+        "nama": "KABUPATEN KEPULAUAN MERANTI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1471",
+        "id_prov": "14",
+        "nama": "KOTA PEKANBARU",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1472",
+        "id_prov": "14",
+        "nama": "KOTA DUMAI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1501",
+        "id_prov": "15",
+        "nama": "KABUPATEN KERINCI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1502",
+        "id_prov": "15",
+        "nama": "KABUPATEN MERANGIN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1503",
+        "id_prov": "15",
+        "nama": "KABUPATEN SAROLANGUN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1504",
+        "id_prov": "15",
+        "nama": "KABUPATEN BATANGHARI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1505",
+        "id_prov": "15",
+        "nama": "KABUPATEN MUARO JAMBI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1506",
+        "id_prov": "15",
+        "nama": "KABUPATEN TANJUNG JABUNG BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1507",
+        "id_prov": "15",
+        "nama": "KABUPATEN TANJUNG JABUNG TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1508",
+        "id_prov": "15",
+        "nama": "KABUPATEN BUNGO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1509",
+        "id_prov": "15",
+        "nama": "KABUPATEN TEBO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1571",
+        "id_prov": "15",
+        "nama": "KOTA JAMBI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1572",
+        "id_prov": "15",
+        "nama": "KOTA SUNGAI PENUH",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1601",
+        "id_prov": "16",
+        "nama": "KABUPATEN OGAN KOMERING ULU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1602",
+        "id_prov": "16",
+        "nama": "KABUPATEN OGAN KOMERING ILIR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1603",
+        "id_prov": "16",
+        "nama": "KABUPATEN MUARA ENIM",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1604",
+        "id_prov": "16",
+        "nama": "KABUPATEN LAHAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1605",
+        "id_prov": "16",
+        "nama": "KABUPATEN MUSI RAWAS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1606",
+        "id_prov": "16",
+        "nama": "KABUPATEN MUSI BANYUASIN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1607",
+        "id_prov": "16",
+        "nama": "KABUPATEN BANYUASIN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1608",
+        "id_prov": "16",
+        "nama": "KABUPATEN OGAN KOMERING ULU TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1609",
+        "id_prov": "16",
+        "nama": "KABUPATEN OGAN KOMERING ULU SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1610",
+        "id_prov": "16",
+        "nama": "KABUPATEN OGAN ILIR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1611",
+        "id_prov": "16",
+        "nama": "KABUPATEN EMPAT LAWANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1612",
+        "id_prov": "16",
+        "nama": "KABUPATEN PENUKAL ABAB LEMATANG ILIR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1613",
+        "id_prov": "16",
+        "nama": "KABUPATEN MUSI RAWAS UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1671",
+        "id_prov": "16",
+        "nama": "KOTA PALEMBANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1672",
+        "id_prov": "16",
+        "nama": "KOTA PAGAR ALAM",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1673",
+        "id_prov": "16",
+        "nama": "KOTA LUBUK LINGGAU",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1674",
+        "id_prov": "16",
+        "nama": "KOTA PRABUMULIH",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1701",
+        "id_prov": "17",
+        "nama": "KABUPATEN BENGKULU SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1702",
+        "id_prov": "17",
+        "nama": "KABUPATEN REJANG LEBONG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1703",
+        "id_prov": "17",
+        "nama": "KABUPATEN BENGKULU UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1704",
+        "id_prov": "17",
+        "nama": "KABUPATEN KAUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1705",
+        "id_prov": "17",
+        "nama": "KABUPATEN SELUMA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1706",
+        "id_prov": "17",
+        "nama": "KABUPATEN MUKO MUKO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1707",
+        "id_prov": "17",
+        "nama": "KABUPATEN LEBONG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1708",
+        "id_prov": "17",
+        "nama": "KABUPATEN KEPAHIANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1709",
+        "id_prov": "17",
+        "nama": "KABUPATEN BENGKULU TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1771",
+        "id_prov": "17",
+        "nama": "KOTA BENGKULU",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1801",
+        "id_prov": "18",
+        "nama": "KABUPATEN LAMPUNG SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1802",
+        "id_prov": "18",
+        "nama": "KABUPATEN LAMPUNG TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1803",
+        "id_prov": "18",
+        "nama": "KABUPATEN LAMPUNG UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1804",
+        "id_prov": "18",
+        "nama": "KABUPATEN LAMPUNG BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1805",
+        "id_prov": "18",
+        "nama": "KABUPATEN TULANG BAWANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1806",
+        "id_prov": "18",
+        "nama": "KABUPATEN TANGGAMUS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1807",
+        "id_prov": "18",
+        "nama": "KABUPATEN LAMPUNG TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1808",
+        "id_prov": "18",
+        "nama": "KABUPATEN WAY KANAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1809",
+        "id_prov": "18",
+        "nama": "KABUPATEN PESAWARAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1810",
+        "id_prov": "18",
+        "nama": "KABUPATEN PRINGSEWU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1811",
+        "id_prov": "18",
+        "nama": "KABUPATEN MESUJI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1812",
+        "id_prov": "18",
+        "nama": "KABUPATEN TULANG BAWANG BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1813",
+        "id_prov": "18",
+        "nama": "KABUPATEN PESISIR BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1871",
+        "id_prov": "18",
+        "nama": "KOTA BANDAR LAMPUNG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1872",
+        "id_prov": "18",
+        "nama": "KOTA METRO",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "1901",
+        "id_prov": "19",
+        "nama": "KABUPATEN BANGKA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1902",
+        "id_prov": "19",
+        "nama": "KABUPATEN BELITUNG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1903",
+        "id_prov": "19",
+        "nama": "KABUPATEN BANGKA SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1904",
+        "id_prov": "19",
+        "nama": "KABUPATEN BANGKA TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1905",
+        "id_prov": "19",
+        "nama": "KABUPATEN BANGKA BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1906",
+        "id_prov": "19",
+        "nama": "KABUPATEN BELITUNG TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "1971",
+        "id_prov": "19",
+        "nama": "KOTA PANGKAL PINANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "2101",
+        "id_prov": "21",
+        "nama": "KABUPATEN BINTAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "2102",
+        "id_prov": "21",
+        "nama": "KABUPATEN KARIMUN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "2103",
+        "id_prov": "21",
+        "nama": "KABUPATEN NATUNA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "2104",
+        "id_prov": "21",
+        "nama": "KABUPATEN LINGGA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "2105",
+        "id_prov": "21",
+        "nama": "KABUPATEN KEPULAUAN ANAMBAS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "2171",
+        "id_prov": "21",
+        "nama": "KOTA BATAM",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "2172",
+        "id_prov": "21",
+        "nama": "KOTA TANJUNG PINANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3101",
+        "id_prov": "31",
+        "nama": "KABUPATEN ADM. KEP. SERIBU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3171",
+        "id_prov": "31",
+        "nama": "KOTA ADM. JAKARTA PUSAT",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3172",
+        "id_prov": "31",
+        "nama": "KOTA ADM. JAKARTA UTARA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3173",
+        "id_prov": "31",
+        "nama": "KOTA ADM. JAKARTA BARAT",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3174",
+        "id_prov": "31",
+        "nama": "KOTA ADM. JAKARTA SELATAN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3175",
+        "id_prov": "31",
+        "nama": "KOTA ADM. JAKARTA TIMUR",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3201",
+        "id_prov": "32",
+        "nama": "KABUPATEN BOGOR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3202",
+        "id_prov": "32",
+        "nama": "KABUPATEN SUKABUMI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3203",
+        "id_prov": "32",
+        "nama": "KABUPATEN CIANJUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3204",
+        "id_prov": "32",
+        "nama": "KABUPATEN BANDUNG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3205",
+        "id_prov": "32",
+        "nama": "KABUPATEN GARUT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3206",
+        "id_prov": "32",
+        "nama": "KABUPATEN TASIKMALAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3207",
+        "id_prov": "32",
+        "nama": "KABUPATEN CIAMIS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3208",
+        "id_prov": "32",
+        "nama": "KABUPATEN KUNINGAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3209",
+        "id_prov": "32",
+        "nama": "KABUPATEN CIREBON",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3210",
+        "id_prov": "32",
+        "nama": "KABUPATEN MAJALENGKA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3211",
+        "id_prov": "32",
+        "nama": "KABUPATEN SUMEDANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3212",
+        "id_prov": "32",
+        "nama": "KABUPATEN INDRAMAYU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3213",
+        "id_prov": "32",
+        "nama": "KABUPATEN SUBANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3214",
+        "id_prov": "32",
+        "nama": "KABUPATEN PURWAKARTA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3215",
+        "id_prov": "32",
+        "nama": "KABUPATEN KARAWANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3216",
+        "id_prov": "32",
+        "nama": "KABUPATEN BEKASI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3217",
+        "id_prov": "32",
+        "nama": "KABUPATEN BANDUNG BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3218",
+        "id_prov": "32",
+        "nama": "KABUPATEN PANGANDARAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3271",
+        "id_prov": "32",
+        "nama": "KOTA BOGOR",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3272",
+        "id_prov": "32",
+        "nama": "KOTA SUKABUMI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3273",
+        "id_prov": "32",
+        "nama": "KOTA BANDUNG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3274",
+        "id_prov": "32",
+        "nama": "KOTA CIREBON",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3275",
+        "id_prov": "32",
+        "nama": "KOTA BEKASI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3276",
+        "id_prov": "32",
+        "nama": "KOTA DEPOK",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3277",
+        "id_prov": "32",
+        "nama": "KOTA CIMAHI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3278",
+        "id_prov": "32",
+        "nama": "KOTA TASIKMALAYA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3279",
+        "id_prov": "32",
+        "nama": "KOTA BANJAR",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3301",
+        "id_prov": "33",
+        "nama": "KABUPATEN CILACAP",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3302",
+        "id_prov": "33",
+        "nama": "KABUPATEN BANYUMAS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3303",
+        "id_prov": "33",
+        "nama": "KABUPATEN PURBALINGGA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3304",
+        "id_prov": "33",
+        "nama": "KABUPATEN BANJARNEGARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3305",
+        "id_prov": "33",
+        "nama": "KABUPATEN KEBUMEN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3306",
+        "id_prov": "33",
+        "nama": "KABUPATEN PURWOREJO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3307",
+        "id_prov": "33",
+        "nama": "KABUPATEN WONOSOBO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3308",
+        "id_prov": "33",
+        "nama": "KABUPATEN MAGELANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3309",
+        "id_prov": "33",
+        "nama": "KABUPATEN BOYOLALI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3310",
+        "id_prov": "33",
+        "nama": "KABUPATEN KLATEN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3311",
+        "id_prov": "33",
+        "nama": "KABUPATEN SUKOHARJO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3312",
+        "id_prov": "33",
+        "nama": "KABUPATEN WONOGIRI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3313",
+        "id_prov": "33",
+        "nama": "KABUPATEN KARANGANYAR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3314",
+        "id_prov": "33",
+        "nama": "KABUPATEN SRAGEN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3315",
+        "id_prov": "33",
+        "nama": "KABUPATEN GROBOGAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3316",
+        "id_prov": "33",
+        "nama": "KABUPATEN BLORA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3317",
+        "id_prov": "33",
+        "nama": "KABUPATEN REMBANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3318",
+        "id_prov": "33",
+        "nama": "KABUPATEN PATI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3319",
+        "id_prov": "33",
+        "nama": "KABUPATEN KUDUS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3320",
+        "id_prov": "33",
+        "nama": "KABUPATEN JEPARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3321",
+        "id_prov": "33",
+        "nama": "KABUPATEN DEMAK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3322",
+        "id_prov": "33",
+        "nama": "KABUPATEN SEMARANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3323",
+        "id_prov": "33",
+        "nama": "KABUPATEN TEMANGGUNG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3324",
+        "id_prov": "33",
+        "nama": "KABUPATEN KENDAL",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3325",
+        "id_prov": "33",
+        "nama": "KABUPATEN BATANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3326",
+        "id_prov": "33",
+        "nama": "KABUPATEN PEKALONGAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3327",
+        "id_prov": "33",
+        "nama": "KABUPATEN PEMALANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3328",
+        "id_prov": "33",
+        "nama": "KABUPATEN TEGAL",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3329",
+        "id_prov": "33",
+        "nama": "KABUPATEN BREBES",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3371",
+        "id_prov": "33",
+        "nama": "KOTA MAGELANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3372",
+        "id_prov": "33",
+        "nama": "KOTA SURAKARTA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3373",
+        "id_prov": "33",
+        "nama": "KOTA SALATIGA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3374",
+        "id_prov": "33",
+        "nama": "KOTA SEMARANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3375",
+        "id_prov": "33",
+        "nama": "KOTA PEKALONGAN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3376",
+        "id_prov": "33",
+        "nama": "KOTA TEGAL",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3401",
+        "id_prov": "34",
+        "nama": "KABUPATEN KULON PROGO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3402",
+        "id_prov": "34",
+        "nama": "KABUPATEN BANTUL",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3403",
+        "id_prov": "34",
+        "nama": "KABUPATEN GUNUNG KIDUL",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3404",
+        "id_prov": "34",
+        "nama": "KABUPATEN SLEMAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3471",
+        "id_prov": "34",
+        "nama": "KOTA YOGYAKARTA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3501",
+        "id_prov": "35",
+        "nama": "KABUPATEN PACITAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3502",
+        "id_prov": "35",
+        "nama": "KABUPATEN PONOROGO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3503",
+        "id_prov": "35",
+        "nama": "KABUPATEN TRENGGALEK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3504",
+        "id_prov": "35",
+        "nama": "KABUPATEN TULUNGAGUNG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3505",
+        "id_prov": "35",
+        "nama": "KABUPATEN BLITAR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3506",
+        "id_prov": "35",
+        "nama": "KABUPATEN KEDIRI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3507",
+        "id_prov": "35",
+        "nama": "KABUPATEN MALANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3508",
+        "id_prov": "35",
+        "nama": "KABUPATEN LUMAJANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3509",
+        "id_prov": "35",
+        "nama": "KABUPATEN JEMBER",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3510",
+        "id_prov": "35",
+        "nama": "KABUPATEN BANYUWANGI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3511",
+        "id_prov": "35",
+        "nama": "KABUPATEN BONDOWOSO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3512",
+        "id_prov": "35",
+        "nama": "KABUPATEN SITUBONDO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3513",
+        "id_prov": "35",
+        "nama": "KABUPATEN PROBOLINGGO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3514",
+        "id_prov": "35",
+        "nama": "KABUPATEN PASURUAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3515",
+        "id_prov": "35",
+        "nama": "KABUPATEN SIDOARJO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3516",
+        "id_prov": "35",
+        "nama": "KABUPATEN MOJOKERTO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3517",
+        "id_prov": "35",
+        "nama": "KABUPATEN JOMBANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3518",
+        "id_prov": "35",
+        "nama": "KABUPATEN NGANJUK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3519",
+        "id_prov": "35",
+        "nama": "KABUPATEN MADIUN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3520",
+        "id_prov": "35",
+        "nama": "KABUPATEN MAGETAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3521",
+        "id_prov": "35",
+        "nama": "KABUPATEN NGAWI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3522",
+        "id_prov": "35",
+        "nama": "KABUPATEN BOJONEGORO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3523",
+        "id_prov": "35",
+        "nama": "KABUPATEN TUBAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3524",
+        "id_prov": "35",
+        "nama": "KABUPATEN LAMONGAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3525",
+        "id_prov": "35",
+        "nama": "KABUPATEN GRESIK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3526",
+        "id_prov": "35",
+        "nama": "KABUPATEN BANGKALAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3527",
+        "id_prov": "35",
+        "nama": "KABUPATEN SAMPANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3528",
+        "id_prov": "35",
+        "nama": "KABUPATEN PAMEKASAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3529",
+        "id_prov": "35",
+        "nama": "KABUPATEN SUMENEP",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3571",
+        "id_prov": "35",
+        "nama": "KOTA KEDIRI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3572",
+        "id_prov": "35",
+        "nama": "KOTA BLITAR",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3573",
+        "id_prov": "35",
+        "nama": "KOTA MALANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3574",
+        "id_prov": "35",
+        "nama": "KOTA PROBOLINGGO",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3575",
+        "id_prov": "35",
+        "nama": "KOTA PASURUAN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3576",
+        "id_prov": "35",
+        "nama": "KOTA MOJOKERTO",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3577",
+        "id_prov": "35",
+        "nama": "KOTA MADIUN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3578",
+        "id_prov": "35",
+        "nama": "KOTA SURABAYA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3579",
+        "id_prov": "35",
+        "nama": "KOTA BATU",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3601",
+        "id_prov": "36",
+        "nama": "KABUPATEN PANDEGLANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3602",
+        "id_prov": "36",
+        "nama": "KABUPATEN LEBAK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3603",
+        "id_prov": "36",
+        "nama": "KABUPATEN TANGERANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3604",
+        "id_prov": "36",
+        "nama": "KABUPATEN SERANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "3671",
+        "id_prov": "36",
+        "nama": "KOTA TANGERANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3672",
+        "id_prov": "36",
+        "nama": "KOTA CILEGON",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3673",
+        "id_prov": "36",
+        "nama": "KOTA SERANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "3674",
+        "id_prov": "36",
+        "nama": "KOTA TANGERANG SELATAN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "5101",
+        "id_prov": "51",
+        "nama": "KABUPATEN JEMBRANA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5102",
+        "id_prov": "51",
+        "nama": "KABUPATEN TABANAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5103",
+        "id_prov": "51",
+        "nama": "KABUPATEN BADUNG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5104",
+        "id_prov": "51",
+        "nama": "KABUPATEN GIANYAR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5105",
+        "id_prov": "51",
+        "nama": "KABUPATEN KLUNGKUNG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5106",
+        "id_prov": "51",
+        "nama": "KABUPATEN BANGLI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5107",
+        "id_prov": "51",
+        "nama": "KABUPATEN KARANGASEM",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5108",
+        "id_prov": "51",
+        "nama": "KABUPATEN BULELENG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5171",
+        "id_prov": "51",
+        "nama": "KOTA DENPASAR",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "5201",
+        "id_prov": "52",
+        "nama": "KABUPATEN LOMBOK BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5202",
+        "id_prov": "52",
+        "nama": "KABUPATEN LOMBOK TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5203",
+        "id_prov": "52",
+        "nama": "KABUPATEN LOMBOK TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5204",
+        "id_prov": "52",
+        "nama": "KABUPATEN SUMBAWA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5205",
+        "id_prov": "52",
+        "nama": "KABUPATEN DOMPU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5206",
+        "id_prov": "52",
+        "nama": "KABUPATEN BIMA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5207",
+        "id_prov": "52",
+        "nama": "KABUPATEN SUMBAWA BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5208",
+        "id_prov": "52",
+        "nama": "KABUPATEN LOMBOK UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5271",
+        "id_prov": "52",
+        "nama": "KOTA MATARAM",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "5272",
+        "id_prov": "52",
+        "nama": "KOTA BIMA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "5301",
+        "id_prov": "53",
+        "nama": "KABUPATEN KUPANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5302",
+        "id_prov": "53",
+        "nama": "KAB TIMOR TENGAH SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5303",
+        "id_prov": "53",
+        "nama": "KABUPATEN TIMOR TENGAH UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5304",
+        "id_prov": "53",
+        "nama": "KABUPATEN BELU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5305",
+        "id_prov": "53",
+        "nama": "KABUPATEN ALOR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5306",
+        "id_prov": "53",
+        "nama": "KABUPATEN FLORES TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5307",
+        "id_prov": "53",
+        "nama": "KABUPATEN SIKKA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5308",
+        "id_prov": "53",
+        "nama": "KABUPATEN ENDE",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5309",
+        "id_prov": "53",
+        "nama": "KABUPATEN NGADA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5310",
+        "id_prov": "53",
+        "nama": "KABUPATEN MANGGARAI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5311",
+        "id_prov": "53",
+        "nama": "KABUPATEN SUMBA TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5312",
+        "id_prov": "53",
+        "nama": "KABUPATEN SUMBA BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5313",
+        "id_prov": "53",
+        "nama": "KABUPATEN LEMBATA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5314",
+        "id_prov": "53",
+        "nama": "KABUPATEN ROTE NDAO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5315",
+        "id_prov": "53",
+        "nama": "KABUPATEN MANGGARAI BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5316",
+        "id_prov": "53",
+        "nama": "KABUPATEN NAGEKEO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5317",
+        "id_prov": "53",
+        "nama": "KABUPATEN SUMBA TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5318",
+        "id_prov": "53",
+        "nama": "KABUPATEN SUMBA BARAT DAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5319",
+        "id_prov": "53",
+        "nama": "KABUPATEN MANGGARAI TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5320",
+        "id_prov": "53",
+        "nama": "KABUPATEN SABU RAIJUA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5321",
+        "id_prov": "53",
+        "nama": "KABUPATEN MALAKA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "5371",
+        "id_prov": "53",
+        "nama": "KOTA KUPANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "6101",
+        "id_prov": "61",
+        "nama": "KABUPATEN SAMBAS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6102",
+        "id_prov": "61",
+        "nama": "KABUPATEN MEMPAWAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6103",
+        "id_prov": "61",
+        "nama": "KABUPATEN SANGGAU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6104",
+        "id_prov": "61",
+        "nama": "KABUPATEN KETAPANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6105",
+        "id_prov": "61",
+        "nama": "KABUPATEN SINTANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6106",
+        "id_prov": "61",
+        "nama": "KABUPATEN KAPUAS HULU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6107",
+        "id_prov": "61",
+        "nama": "KABUPATEN BENGKAYANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6108",
+        "id_prov": "61",
+        "nama": "KABUPATEN LANDAK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6109",
+        "id_prov": "61",
+        "nama": "KABUPATEN SEKADAU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6110",
+        "id_prov": "61",
+        "nama": "KABUPATEN MELAWI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6111",
+        "id_prov": "61",
+        "nama": "KABUPATEN KAYONG UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6112",
+        "id_prov": "61",
+        "nama": "KABUPATEN KUBU RAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6171",
+        "id_prov": "61",
+        "nama": "KOTA PONTIANAK",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "6172",
+        "id_prov": "61",
+        "nama": "KOTA SINGKAWANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "6201",
+        "id_prov": "62",
+        "nama": "KABUPATEN KOTAWARINGIN BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6202",
+        "id_prov": "62",
+        "nama": "KABUPATEN KOTAWARINGIN TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6203",
+        "id_prov": "62",
+        "nama": "KABUPATEN KAPUAS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6204",
+        "id_prov": "62",
+        "nama": "KABUPATEN BARITO SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6205",
+        "id_prov": "62",
+        "nama": "KABUPATEN BARITO UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6206",
+        "id_prov": "62",
+        "nama": "KABUPATEN KATINGAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6207",
+        "id_prov": "62",
+        "nama": "KABUPATEN SERUYAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6208",
+        "id_prov": "62",
+        "nama": "KABUPATEN SUKAMARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6209",
+        "id_prov": "62",
+        "nama": "KABUPATEN LAMANDAU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6210",
+        "id_prov": "62",
+        "nama": "KABUPATEN GUNUNG MAS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6211",
+        "id_prov": "62",
+        "nama": "KABUPATEN PULANG PISAU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6212",
+        "id_prov": "62",
+        "nama": "KABUPATEN MURUNG RAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6213",
+        "id_prov": "62",
+        "nama": "KABUPATEN BARITO TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6271",
+        "id_prov": "62",
+        "nama": "KOTA PALANGKARAYA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "6301",
+        "id_prov": "63",
+        "nama": "KABUPATEN TANAH LAUT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6302",
+        "id_prov": "63",
+        "nama": "KABUPATEN KOTABARU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6303",
+        "id_prov": "63",
+        "nama": "KABUPATEN BANJAR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6304",
+        "id_prov": "63",
+        "nama": "KABUPATEN BARITO KUALA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6305",
+        "id_prov": "63",
+        "nama": "KABUPATEN TAPIN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6306",
+        "id_prov": "63",
+        "nama": "KABUPATEN HULU SUNGAI SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6307",
+        "id_prov": "63",
+        "nama": "KABUPATEN HULU SUNGAI TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6308",
+        "id_prov": "63",
+        "nama": "KABUPATEN HULU SUNGAI UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6309",
+        "id_prov": "63",
+        "nama": "KABUPATEN TABALONG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6310",
+        "id_prov": "63",
+        "nama": "KABUPATEN TANAH BUMBU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6311",
+        "id_prov": "63",
+        "nama": "KABUPATEN BALANGAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6371",
+        "id_prov": "63",
+        "nama": "KOTA BANJARMASIN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "6372",
+        "id_prov": "63",
+        "nama": "KOTA BANJARBARU",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "6401",
+        "id_prov": "64",
+        "nama": "KABUPATEN PASER",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6402",
+        "id_prov": "64",
+        "nama": "KABUPATEN KUTAI KARTANEGARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6403",
+        "id_prov": "64",
+        "nama": "KABUPATEN BERAU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6407",
+        "id_prov": "64",
+        "nama": "KABUPATEN KUTAI BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6408",
+        "id_prov": "64",
+        "nama": "KABUPATEN KUTAI TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6409",
+        "id_prov": "64",
+        "nama": "KABUPATEN PENAJAM PASER UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6411",
+        "id_prov": "64",
+        "nama": "KABUPATEN MAHAKAM ULU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6471",
+        "id_prov": "64",
+        "nama": "KOTA BALIKPAPAN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "6472",
+        "id_prov": "64",
+        "nama": "KOTA SAMARINDA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "6474",
+        "id_prov": "64",
+        "nama": "KOTA BONTANG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "6501",
+        "id_prov": "65",
+        "nama": "KABUPATEN BULUNGAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6502",
+        "id_prov": "65",
+        "nama": "KABUPATEN MALINAU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6503",
+        "id_prov": "65",
+        "nama": "KABUPATEN NUNUKAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6504",
+        "id_prov": "65",
+        "nama": "KABUPATEN TANA TIDUNG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "6571",
+        "id_prov": "65",
+        "nama": "KOTA TARAKAN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7101",
+        "id_prov": "71",
+        "nama": "KABUPATEN BOLAANG MONGONDOW",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7102",
+        "id_prov": "71",
+        "nama": "KABUPATEN MINAHASA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7103",
+        "id_prov": "71",
+        "nama": "KABUPATEN KEPULAUAN SANGIHE",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7104",
+        "id_prov": "71",
+        "nama": "KABUPATEN KEPULAUAN TALAUD",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7105",
+        "id_prov": "71",
+        "nama": "KABUPATEN MINAHASA SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7106",
+        "id_prov": "71",
+        "nama": "KABUPATEN MINAHASA UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7107",
+        "id_prov": "71",
+        "nama": "KABUPATEN MINAHASA TENGGARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7108",
+        "id_prov": "71",
+        "nama": "KABUPATEN BOLAANG MONGONDOW UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7109",
+        "id_prov": "71",
+        "nama": "KABUPATEN KEP. SIAU TAGULANDANG BIARO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7110",
+        "id_prov": "71",
+        "nama": "KABUPATEN BOLAANG MONGONDOW TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7111",
+        "id_prov": "71",
+        "nama": "KABUPATEN BOLAANG MONGONDOW SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7171",
+        "id_prov": "71",
+        "nama": "KOTA MANADO",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7172",
+        "id_prov": "71",
+        "nama": "KOTA BITUNG",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7173",
+        "id_prov": "71",
+        "nama": "KOTA TOMOHON",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7174",
+        "id_prov": "71",
+        "nama": "KOTA KOTAMOBAGU",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7201",
+        "id_prov": "72",
+        "nama": "KABUPATEN BANGGAI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7202",
+        "id_prov": "72",
+        "nama": "KABUPATEN POSO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7203",
+        "id_prov": "72",
+        "nama": "KABUPATEN DONGGALA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7204",
+        "id_prov": "72",
+        "nama": "KABUPATEN TOLI TOLI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7205",
+        "id_prov": "72",
+        "nama": "KABUPATEN BUOL",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7206",
+        "id_prov": "72",
+        "nama": "KABUPATEN MOROWALI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7207",
+        "id_prov": "72",
+        "nama": "KABUPATEN BANGGAI KEPULAUAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7208",
+        "id_prov": "72",
+        "nama": "KABUPATEN PARIGI MOUTONG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7209",
+        "id_prov": "72",
+        "nama": "KABUPATEN TOJO UNA UNA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7210",
+        "id_prov": "72",
+        "nama": "KABUPATEN SIGI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7211",
+        "id_prov": "72",
+        "nama": "KABUPATEN BANGGAI LAUT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7212",
+        "id_prov": "72",
+        "nama": "KABUPATEN MOROWALI UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7271",
+        "id_prov": "72",
+        "nama": "KOTA PALU",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7301",
+        "id_prov": "73",
+        "nama": "KABUPATEN KEPULAUAN SELAYAR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7302",
+        "id_prov": "73",
+        "nama": "KABUPATEN BULUKUMBA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7303",
+        "id_prov": "73",
+        "nama": "KABUPATEN BANTAENG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7304",
+        "id_prov": "73",
+        "nama": "KABUPATEN JENEPONTO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7305",
+        "id_prov": "73",
+        "nama": "KABUPATEN TAKALAR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7306",
+        "id_prov": "73",
+        "nama": "KABUPATEN GOWA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7307",
+        "id_prov": "73",
+        "nama": "KABUPATEN SINJAI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7308",
+        "id_prov": "73",
+        "nama": "KABUPATEN BONE",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7309",
+        "id_prov": "73",
+        "nama": "KABUPATEN MAROS",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7310",
+        "id_prov": "73",
+        "nama": "KABUPATEN PANGKAJENE KEPULAUAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7311",
+        "id_prov": "73",
+        "nama": "KABUPATEN BARRU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7312",
+        "id_prov": "73",
+        "nama": "KABUPATEN SOPPENG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7313",
+        "id_prov": "73",
+        "nama": "KABUPATEN WAJO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7314",
+        "id_prov": "73",
+        "nama": "KABUPATEN SIDENRENG RAPPANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7315",
+        "id_prov": "73",
+        "nama": "KABUPATEN PINRANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7316",
+        "id_prov": "73",
+        "nama": "KABUPATEN ENREKANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7317",
+        "id_prov": "73",
+        "nama": "KABUPATEN LUWU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7318",
+        "id_prov": "73",
+        "nama": "KABUPATEN TANA TORAJA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7322",
+        "id_prov": "73",
+        "nama": "KABUPATEN LUWU UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7324",
+        "id_prov": "73",
+        "nama": "KABUPATEN LUWU TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7326",
+        "id_prov": "73",
+        "nama": "KABUPATEN TORAJA UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7371",
+        "id_prov": "73",
+        "nama": "KOTA MAKASSAR",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7372",
+        "id_prov": "73",
+        "nama": "KOTA PARE PARE",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7373",
+        "id_prov": "73",
+        "nama": "KOTA PALOPO",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7401",
+        "id_prov": "74",
+        "nama": "KABUPATEN KOLAKA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7402",
+        "id_prov": "74",
+        "nama": "KABUPATEN KONAWE",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7403",
+        "id_prov": "74",
+        "nama": "KABUPATEN MUNA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7404",
+        "id_prov": "74",
+        "nama": "KABUPATEN BUTON",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7405",
+        "id_prov": "74",
+        "nama": "KABUPATEN KONAWE SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7406",
+        "id_prov": "74",
+        "nama": "KABUPATEN BOMBANA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7407",
+        "id_prov": "74",
+        "nama": "KABUPATEN WAKATOBI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7408",
+        "id_prov": "74",
+        "nama": "KABUPATEN KOLAKA UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7409",
+        "id_prov": "74",
+        "nama": "KABUPATEN KONAWE UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7410",
+        "id_prov": "74",
+        "nama": "KABUPATEN BUTON UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7411",
+        "id_prov": "74",
+        "nama": "KABUPATEN KOLAKA TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7412",
+        "id_prov": "74",
+        "nama": "KABUPATEN KONAWE KEPULAUAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7413",
+        "id_prov": "74",
+        "nama": "KABUPATEN MUNA BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7414",
+        "id_prov": "74",
+        "nama": "KABUPATEN BUTON TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7415",
+        "id_prov": "74",
+        "nama": "KABUPATEN BUTON SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7471",
+        "id_prov": "74",
+        "nama": "KOTA KENDARI",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7472",
+        "id_prov": "74",
+        "nama": "KOTA BAU BAU",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7501",
+        "id_prov": "75",
+        "nama": "KABUPATEN GORONTALO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7502",
+        "id_prov": "75",
+        "nama": "KABUPATEN BOALEMO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7503",
+        "id_prov": "75",
+        "nama": "KABUPATEN BONE BOLANGO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7504",
+        "id_prov": "75",
+        "nama": "KABUPATEN PAHUWATO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7505",
+        "id_prov": "75",
+        "nama": "KABUPATEN GORONTALO UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7571",
+        "id_prov": "75",
+        "nama": "KOTA GORONTALO",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "7601",
+        "id_prov": "76",
+        "nama": "KABUPATEN MAMUJU UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7602",
+        "id_prov": "76",
+        "nama": "KABUPATEN MAMUJU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7603",
+        "id_prov": "76",
+        "nama": "KABUPATEN MAMASA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7604",
+        "id_prov": "76",
+        "nama": "KABUPATEN POLEWALI MANDAR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7605",
+        "id_prov": "76",
+        "nama": "KABUPATEN MAJENE",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "7606",
+        "id_prov": "76",
+        "nama": "KABUPATEN MAMUJU TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8101",
+        "id_prov": "81",
+        "nama": "KABUPATEN MALUKU TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8102",
+        "id_prov": "81",
+        "nama": "KABUPATEN MALUKU TENGGARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8103",
+        "id_prov": "81",
+        "nama": "KAB MALUKU TENGGARA BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8104",
+        "id_prov": "81",
+        "nama": "KABUPATEN BURU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8105",
+        "id_prov": "81",
+        "nama": "KABUPATEN SERAM BAGIAN TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8106",
+        "id_prov": "81",
+        "nama": "KABUPATEN SERAM BAGIAN BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8107",
+        "id_prov": "81",
+        "nama": "KABUPATEN KEPULAUAN ARU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8108",
+        "id_prov": "81",
+        "nama": "KABUPATEN MALUKU BARAT DAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8109",
+        "id_prov": "81",
+        "nama": "KABUPATEN BURU SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8171",
+        "id_prov": "81",
+        "nama": "KOTA AMBON",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "8172",
+        "id_prov": "81",
+        "nama": "KOTA TUAL",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "8201",
+        "id_prov": "82",
+        "nama": "KABUPATEN HALMAHERA BARAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8202",
+        "id_prov": "82",
+        "nama": "KABUPATEN HALMAHERA TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8203",
+        "id_prov": "82",
+        "nama": "KABUPATEN HALMAHERA UTARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8204",
+        "id_prov": "82",
+        "nama": "KABUPATEN HALMAHERA SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8205",
+        "id_prov": "82",
+        "nama": "KABUPATEN KEPULAUAN SULA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8206",
+        "id_prov": "82",
+        "nama": "KABUPATEN HALMAHERA TIMUR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8207",
+        "id_prov": "82",
+        "nama": "KABUPATEN PULAU MOROTAI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8208",
+        "id_prov": "82",
+        "nama": "KABUPATEN PULAU TALIABU",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "8271",
+        "id_prov": "82",
+        "nama": "KOTA TERNATE",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "8272",
+        "id_prov": "82",
+        "nama": "KOTA TIDORE KEPULAUAN",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "9101",
+        "id_prov": "91",
+        "nama": "KABUPATEN MERAUKE",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9102",
+        "id_prov": "91",
+        "nama": "KABUPATEN JAYAWIJAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9103",
+        "id_prov": "91",
+        "nama": "KABUPATEN JAYAPURA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9104",
+        "id_prov": "91",
+        "nama": "KABUPATEN NABIRE",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9105",
+        "id_prov": "91",
+        "nama": "KABUPATEN KEPULAUAN YAPEN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9106",
+        "id_prov": "91",
+        "nama": "KABUPATEN BIAK NUMFOR",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9107",
+        "id_prov": "91",
+        "nama": "KABUPATEN PUNCAK JAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9108",
+        "id_prov": "91",
+        "nama": "KABUPATEN PANIAI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9109",
+        "id_prov": "91",
+        "nama": "KABUPATEN MIMIKA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9110",
+        "id_prov": "91",
+        "nama": "KABUPATEN SARMI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9111",
+        "id_prov": "91",
+        "nama": "KABUPATEN KEEROM",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9112",
+        "id_prov": "91",
+        "nama": "KAB PEGUNUNGAN BINTANG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9113",
+        "id_prov": "91",
+        "nama": "KABUPATEN YAHUKIMO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9114",
+        "id_prov": "91",
+        "nama": "KABUPATEN TOLIKARA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9115",
+        "id_prov": "91",
+        "nama": "KABUPATEN WAROPEN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9116",
+        "id_prov": "91",
+        "nama": "KABUPATEN BOVEN DIGOEL",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9117",
+        "id_prov": "91",
+        "nama": "KABUPATEN MAPPI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9118",
+        "id_prov": "91",
+        "nama": "KABUPATEN ASMAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9119",
+        "id_prov": "91",
+        "nama": "KABUPATEN SUPIORI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9120",
+        "id_prov": "91",
+        "nama": "KABUPATEN MAMBERAMO RAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9121",
+        "id_prov": "91",
+        "nama": "KABUPATEN MAMBERAMO TENGAH",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9122",
+        "id_prov": "91",
+        "nama": "KABUPATEN YALIMO",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9123",
+        "id_prov": "91",
+        "nama": "KABUPATEN LANNY JAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9124",
+        "id_prov": "91",
+        "nama": "KABUPATEN NDUGA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9125",
+        "id_prov": "91",
+        "nama": "KABUPATEN PUNCAK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9126",
+        "id_prov": "91",
+        "nama": "KABUPATEN DOGIYAI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9127",
+        "id_prov": "91",
+        "nama": "KABUPATEN INTAN JAYA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9128",
+        "id_prov": "91",
+        "nama": "KABUPATEN DEIYAI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9171",
+        "id_prov": "91",
+        "nama": "KOTA JAYAPURA",
+        "id_jenis": "2",
+        "status": "0"
+    },
+    {
+        "id_kab": "9201",
+        "id_prov": "92",
+        "nama": "KABUPATEN SORONG",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9202",
+        "id_prov": "92",
+        "nama": "KABUPATEN MANOKWARI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9203",
+        "id_prov": "92",
+        "nama": "KABUPATEN FAK FAK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9204",
+        "id_prov": "92",
+        "nama": "KABUPATEN SORONG SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9205",
+        "id_prov": "92",
+        "nama": "KABUPATEN RAJA AMPAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9206",
+        "id_prov": "92",
+        "nama": "KABUPATEN TELUK BINTUNI",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9207",
+        "id_prov": "92",
+        "nama": "KABUPATEN TELUK WONDAMA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9208",
+        "id_prov": "92",
+        "nama": "KABUPATEN KAIMANA",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9209",
+        "id_prov": "92",
+        "nama": "KABUPATEN TAMBRAUW",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9210",
+        "id_prov": "92",
+        "nama": "KABUPATEN MAYBRAT",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9211",
+        "id_prov": "92",
+        "nama": "KABUPATEN MANOKWARI SELATAN",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9212",
+        "id_prov": "92",
+        "nama": "KABUPATEN PEGUNUNGAN ARFAK",
+        "id_jenis": "1",
+        "status": "0"
+    },
+    {
+        "id_kab": "9271",
+        "id_prov": "92",
+        "nama": "KOTA SORONG",
+        "id_jenis": "2",
+        "status": "0"
+    }
+];
+
+$(function () {
+
+	// if (navigator.geolocation) {
+	//     navigator.geolocation.getCurrentPosition(showLocation, showError);
+	// } else {
+	//     alert('It seems like Geolocation, which is required for this page, is not enabled in your browser. Please use a browser which supports it.');
+	// }
+
+	function successFunction(position) {
+	    var lat = position.coords.latitude;
+	    var long = position.coords.longitude;
+	    console.log('Your latitude is :'+lat+' and longitude is '+long);
+	}
+
+	function showError(error) {
+        var x = document.getElementById("alert");
+        $(x).show();
+    }
+
+    function showLocation(position) {
+        var latitude = position.coords.latitude;
+        var longitude = position.coords.longitude;
+        $(".search_latitude").val(latitude);
+      	$(".search_longitude").val(longitude);
+        getAddress(latitude, longitude);
+        getStreet(latitude, longitude);
+        getMap(latitude, longitude);
+
+        $("#search_term").geocomplete({
+            map: ".map_canvas",
+            details: "form ",
+            location: [latitude, longitude],
+            markerOptions: {
+            	zoom: 22,
+                draggable: true,
+                streetViewControl: false
+            }
+        });
+
+        var input = document.getElementById('search_term');
+		var autocomplete = new google.maps.places.Autocomplete(input);
+
+		google.maps.event.addListener(autocomplete, 'place_changed', function() {
+			var place = autocomplete.getPlace();
+			var location = "<b>Location</b>: " + place.formatted_address + "<br/>";
+			var lati = place.geometry.location.lat();
+			var longi = place.geometry.location.lng();
+			$(".search_addr").val(place.formatted_address);  
+			$(".search_latitude").val(lati);
+	      	$(".search_longitude").val(longi);
+
+	      	$('.search_city').val(place.address_components[3].long_name);
+			$('.search_prov').val(place.address_components[4].long_name);
+			$('.id_kota').val(findMatches(place.address_components[3].long_name)['id_kab']);
+			$('.id_provinsi').val(findMatches(place.address_components[3].long_name)['id_prov']);
+
+			getStreet(lati,longi);
+			getMap(lati,longi);
+
+			console.log(place);
+		});
+
+		google.maps.event.addListener(autocomplete, 'click', function() {
+			var place = autocomplete.getPlace();
+			var location = "<b>Location</b>: " + place.formatted_address + "<br/>";
+			var lati = place.geometry.location.lat();
+			var longi = place.geometry.location.lng();
+			$(".search_addr").val(place.formatted_address);
+			$(".search_latitude").val(lati);
+	      	$(".search_longitude").val(longi);
+
+			getStreet(lati,longi);
+			getMap(lati,longi);
+
+		})	
+        
+        $("#search_term").bind("geocode:dragged", function (event, latLng) {
+            $(".search_latitude").val(latLng.lat());
+            $(".search_longitude").val(latLng.lng());
+            $(".search_addr").geocomplete("find", latLng.lat() + "," + latLng.lng()).val();
+            $(this).geocomplete('marker')
+                .setOptions({position: latLng, map: $(this).geocomplete("map")});
+            getStreet(latLng.lat(), latLng.lng());
+            $("#reset,#sr_lat,#sr_lng").show();
+        });
+    }
+
+});
+
+
+function activatePlacesSearch(iniLat = '', iniLng = ''){
+
+var initialLat = iniLat ? iniLat : $('.search_latitude').val();
+var initialLong = iniLng ? iniLng : $('search_longitude').val();
+initialLat = initialLat ? initialLat : -7.295364; 
+initialLong = initialLong ? initialLong : 112.733262;
+
+var latlng = new google.maps.LatLng(initialLat, initialLong);
+var options = {
+	zoom: 16,
+	center: latlng,
+    streetViewControl: false       /////////////////////ADD
+	//mapTypeId: google.maps.mapTypeId.ROADMAP
+};
+
+map = new google.maps.Map(document.getElementById('geomap'), options);
+
+var panorama = new google.maps.StreetViewPanorama(
+    document.getElementById('pip-pano'), {
+      	position: latlng,
+      	pov: {
+        	heading: 34,
+        	pitch: 10
+      	}
+	});
+map.setStreetView(panorama);
+
+geocoder = new google.maps.Geocoder();
+
+marker = new google.maps.Marker({
+	map: map,
+	draggable: true,
+	position: latlng
+});
+
+google.maps.event.addListener(marker, "dragend", function() {
+	var point = marker.getPosition();
+	map.panTo(point);
+	geocoder.geocode({'latLng': marker.getPosition()}, function(results, status) {
+		if (status == google.maps.GeocoderStatus.OK) {
+			map.setCenter(results[0].geometry.location);          
+            map.getStreetView().setPosition({lat: marker.getPosition().lat(), lng: marker.getPosition().lng()});                  /////////////////////ADD
+			$('.search_addr').val(results[0].formatted_address);
+			$('.search_latitude').val(marker.getPosition().lat());
+			$('.search_longitude').val(marker.getPosition().lng());
+			$('.search_city').val(results[0].address_components[4].long_name);
+			$('.search_prov').val(results[0].address_components[5].long_name);
+			
+			$('.id_kota').val(findMatches(results[0].address_components[4].long_name)['id_kab']);
+			$('.id_provinsi').val(findMatches(results[0].address_components[4].long_name)['id_prov']);
+            
+
+		}
+	});
+});
+
+///////////////////////////////////////////////////////////////////////
+
+	var input = document.getElementById('search_term');
+	var autocomplete = new google.maps.places.Autocomplete(input);
+
+	google.maps.event.addListener(autocomplete, 'place_changed', function() {
+		var place = autocomplete.getPlace();
+		var location = "<b>Location</b>: " + place.formatted_address + "<br/>";
+		var lati = place.geometry.location.lat();
+		var longi = place.geometry.location.lng();
+
+		// location += "<b>Latitude</b>: " + lati + "<br/>";
+		// location += "<b>Longitude</b>: " + longi;
+		// document.getElementById('lblResult').innerHTML = location;
+
+		$(".search_addr").val(place.formatted_address);  
+		$(".search_latitude").val(lati);
+      	$(".search_longitude").val(longi);
+
+      	$('.search_city').val(place.address_components[3].long_name);
+		$('.search_prov').val(place.address_components[4].long_name);
+		$('.id_kota').val(findMatches(place.address_components[3].long_name)['id_kab']);
+		$('.id_provinsi').val(findMatches(place.address_components[3].long_name)['id_prov']);
+
+		getStreet(lati,longi);
+		getMap(lati,longi);
+
+
+	});
+
+	google.maps.event.addListener(autocomplete, 'click', function() {
+		var place = autocomplete.getPlace();
+		var location = "<b>Location</b>: " + place.formatted_address + "<br/>";
+		var lati = place.geometry.location.lat();
+		var longi = place.geometry.location.lng();
+		$(".search_addr").val(place.formatted_address);
+		$(".search_latitude").val(lati);
+      	$(".search_longitude").val(longi);
+
+      	$('.search_city').val(place.address_components[3].long_name);
+		$('.search_prov').val(place.address_components[4].long_name);
+		$('.id_kota').val(findMatches(place.address_components[3].long_name)['id_kab']);
+		$('.id_provinsi').val(findMatches(place.address_components[3].long_name)['id_prov']);
+
+		getStreet(lati,longi);
+		getMap(lati,longi);
+	})		
+}
+
+function initMap() {
+    $("#search_term").geocomplete({
+      map: ".map_canvas",
+      details: "form ",
+      markerOptions: {
+        zoom: 18,
+        draggable: true,
+        streetViewControl: false
+      }
+    });
+    
+    $("#search_term").bind("geocode:dragged", function(event, latLng){
+      $(".search_latitude").val(latLng.lat());
+      $(".search_longitude").val(latLng.lng());
+      getStreet(latLng.lat(), latLng.lng());
+      getAddress(latLng.lat(), latLng.lng());
+    });
+    
+    $("#find").click(function(){
+      $("#search_term").trigger("geocode");
+    }).click();
+
+}    
+
+function getStreet(initialLat, initialLong) {
+    var latlng = new google.maps.LatLng(initialLat, initialLong);
+    var lokasi = {lat: initialLat, lng: initialLong};
+    var options = {
+        zoom: 18,
+        center: lokasi,
+        streetViewControl: false       /////////////////////ADD
+    };
+
+    map = new google.maps.Map(document.getElementById('pip-pano'), options);
+
+    var panorama = new google.maps.StreetViewPanorama(
+        document.getElementById('pip-pano'), {
+            position: latlng,
+            pov: {
+                heading: 34,
+                pitch: 10
+            }
+        });
+    // map.setStreetView(panorama);
+
+    panorama = map.getStreetView();
+    panorama.setPosition(lokasi);
+};
+
+function getAddress(myLatitude, myLongitude) {
+
+    var geocoder = new google.maps.Geocoder();    // create a geocoder object
+    var location = new google.maps.LatLng(myLatitude, myLongitude); // turn coordinates into an object
+
+    geocoder.geocode({'latLng': location}, function (results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {             // if geocode success
+            var ad = results[0].formatted_address;
+            $(".search_addr").val(ad);                              // write address to field
+            document.getElementById('search_term').value = ad;
+        } else {
+            alert("Geocode failure: " + status);                    // alert any other error(s)
+            return false;
+        }
+    });
+}
+
+function getMap(initialLat, initialLong) {
+	var latlng = new google.maps.LatLng(initialLat, initialLong);
+	var options = {
+		zoom: 16,
+		center: latlng,
+        streetViewControl: false       /////////////////////ADD
+		//mapTypeId: google.maps.mapTypeId.ROADMAP
+	};
+
+	map = new google.maps.Map(document.getElementById('geomap'), options);
+	marker = new google.maps.Marker({
+		map: map,
+		draggable: true,
+		position: latlng
+	});
+
+	geocoder = new google.maps.Geocoder();
+
+	google.maps.event.addListener(marker, "dragend", function() {
+		var point = marker.getPosition();
+		map.panTo(point);
+		geocoder.geocode({'latLng': marker.getPosition()}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				map.setCenter(results[0].geometry.location);          
+                map.getStreetView().setPosition({lat: marker.getPosition().lat(), lng: marker.getPosition().lng()});                  /////////////////////ADD
+				$('.search_addr').val(results[0].formatted_address);
+				$('.search_latitude').val(marker.getPosition().lat());
+				$('.search_longitude').val(marker.getPosition().lng());
+				$('.search_city').val(results[0].address_components[4].long_name);
+				$('.search_prov').val(results[0].address_components[5].long_name);
+				
+				getStreet(marker.getPosition().lat(),marker.getPosition().lng());
+
+				$('.id_kota').val(findMatches(results[0].address_components[4].long_name)['id_kab']);
+				$('.id_provinsi').val(findMatches(results[0].address_components[4].long_name)['id_prov']);
+                
+
+			}
+		});
+	});
+}
+
+function findMatches(city) {
+	let key = city.toUpperCase();
+	let object = kabu.find(o => Object.entries(o).find(([k, value]) => k === 'nama' && value === key) !== undefined);
+
+	return object;
+}
+
+console.log(findMatches('Jawa Timur'));
+</script>
+
+<script src="geocomplete/jquery.geocomplete.js"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAoUOdMzbYns5TcDrLZYMEuXhUGkV5QIoo&libraries=places&callback=activatePlacesSearch"></script> 
+</body>
+</html>
